@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import operator
 import re
 from dataclasses import dataclass
 from random import randint
 from typing import Callable, Match, Optional
 
 DICE_PATTERN = re.compile(r"(\d*)d(\d+)")
-MATHS_PATTERN = re.compile(r"(?P<lhs>\w*)\s*(?P<op>[-+\/*])\s*(?P<rhs>\w*)")
+MATHS_PATTERN = re.compile(r"(?P<lhs>\w+)\s*(?P<op>[-+\/*])\s*(?P<rhs>\w+)")
 
 
 class ParserError(Exception):
@@ -30,17 +29,15 @@ class Dice:
     def roll(self) -> int:
         return sum((randint(1, self.sides) for _ in range(self.num)))
 
+    def average(self) -> int:
+        return self.num * (self.sides + 1) // 2
+
 
 class DiceParser:
     def __init__(self):
         self.matches = None
 
-    def parse(self, string):
-        self.matches = {d: Dice.from_match(d) for d in DICE_PATTERN.finditer(string)}
-        if not self.matches:
-            raise ParserError(string)
-
-    def _sub_dice(self, func, string):
+    def _sub_dice(self, func, string) -> str:
         for k, dice in self.matches.items():
             # count = 1 so repeated dice in the same string don't roll the same value
             # e.g., 1d6 + 4 + 1d6 would evaluate both '1d6s' to the same value
@@ -48,23 +45,32 @@ class DiceParser:
             string = string.replace(k.group(), str(getattr(Dice, func)(dice)), 1)
         return string
 
-    def _sub_ops(self, string):
+    @staticmethod
+    def _check_operands(string) -> int:
+        try:
+            return int(string)
+        except ValueError as err:
+            raise ParserError(string) from err
+
+    def _sub_ops(self, string) -> str:
         m = MATHS_PATTERN.search(string)  # pylint: disable=invalid-name
         while m:
-            try:
-                res = getop(m.group("op"))(int(m.group("lhs")), int(m.group("rhs")))
-            except ValueError as err:
-                raise ParserError(m.group()) from err
-            string = string.replace(m.group(), str(res))
+            lhs, rhs = map(self._check_operands, (m.group("lhs"), m.group("rhs")))
+            opr = getop(m.group("op"))
+            string = string.replace(m.group(), str(opr(lhs, rhs)))
             m = MATHS_PATTERN.search(string)  # pylint: disable=invalid-name
         return string
 
-    def safe_eval(self, func, string):
+    def parse(self, string) -> None:
+        self.matches = {d: Dice.from_match(d) for d in DICE_PATTERN.finditer(string)}
+        if not self.matches:
+            raise ParserError(string)
+
+    def eval(self, func, string):
         self.parse(string)
         string = self._sub_dice(func, string)
-        print(string)
         string = self._sub_ops(string)
-        return int(string)
+        return string
 
 
 def count_dice_attr(attr: Optional[str] = None) -> int:
@@ -75,15 +81,14 @@ def count_dice_attr(attr: Optional[str] = None) -> int:
 
 def getop(opstring: str) -> Callable:
     ops = {
-        "+": operator.add,
-        "-": operator.sub,
-        "*": operator.mul,
-        "/": operator.truediv,
+        "+": lambda x, y: x + y,
+        "-": lambda x, y: x - y,
+        "*": lambda x, y: x * y,
+        "/": lambda x, y: x // y,
     }
     return ops[opstring]
 
 
 if __name__ == "__main__":
     parser = DiceParser()
-    rolled = parser.safe_eval("roll", "3d6+5 *d20+3d6")
-    print(rolled)
+    print(parser.eval("roll", "1d20 - 5"))
