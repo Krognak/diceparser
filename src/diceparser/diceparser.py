@@ -37,22 +37,21 @@ class DiceParser:
     def __init__(self):
         self.matches = None
 
-    def _sub_dice(self, func, string) -> str:
+    def _sub_dice(self, func: str, string: str) -> str:
         for k, dice in self.matches.items():
             # count = 1 so repeated dice in the same string don't roll the same value
-            # e.g., 1d6 + 4 + 1d6 would evaluate both '1d6s' to the same value
-            # if count = -1
+            # e.g., 1d6 + 4 + 1d6 would roll both '1d6s' to the same value otherwise
             string = string.replace(k.group(), str(getattr(Dice, func)(dice)), 1)
         return string
 
     @staticmethod
-    def _check_operands(string) -> int:
+    def _check_operands(string: str) -> int:
         try:
             return int(string)
         except ValueError as err:
             raise ParserError(string) from err
 
-    def _sub_ops(self, string) -> str:
+    def _sub_ops(self, string: str) -> str:
         m = MATHS_PATTERN.search(string)  # pylint: disable=invalid-name
         while m:
             lhs, rhs = map(self._check_operands, (m.group("lhs"), m.group("rhs")))
@@ -61,12 +60,12 @@ class DiceParser:
             m = MATHS_PATTERN.search(string)  # pylint: disable=invalid-name
         return string
 
-    def parse(self, string) -> None:
+    def parse(self, string: str) -> None:
         self.matches = {d: Dice.from_match(d) for d in DICE_PATTERN.finditer(string)}
         if not self.matches:
             raise ParserError(string)
 
-    def eval(self, func, string):
+    def eval(self, func: str, string: str) -> str:
         self.parse(string)
         string = self._sub_dice(func, string)
         string = self._sub_ops(string)
