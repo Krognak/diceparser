@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "diceparser"
-version = "0.1.0"
+version = "0.1.2"
 description = "Yet another dice-parsing library!"
 authors = ["Gage Talbot <gagetalbot@pm.me>"]
 readme = "README.md"
