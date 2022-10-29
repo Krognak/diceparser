@@ -6,7 +6,7 @@ Usage:
 >>> import diceparser
 >>> parser = diceparser.DiceParser()
 >>> parser.eval("roll", "3d6+1")
-'9'
+9
 """
 
 from .parser import DiceParser

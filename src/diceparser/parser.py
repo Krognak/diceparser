@@ -1,3 +1,5 @@
+"""DiceParser implementation to parse strings into dice roll results"""
+
 from __future__ import annotations
 
 import re
@@ -5,11 +7,14 @@ from typing import Callable
 
 from .dice import Dice
 
+# matches [num(optional)]d[sides]
 DICE_PATTERN = re.compile(r"(\d*)d(\d+)")
+# matches [left operand][operator][right operand]
+# with optional spaces around the operator
 MATHS_PATTERN = re.compile(r"(?P<lhs>\w+)\s*(?P<op>[-+\/*])\s*(?P<rhs>\w+)")
 
 
-class ParserError(Exception):
+class ParserError(Exception):  # pylint: disable=missing-class-docstring
     def __init__(self, string):
         self.string = string
 
@@ -18,6 +23,12 @@ class ParserError(Exception):
 
 
 class DiceParser:
+    """Parser for standard dice notation
+
+    Attributes:
+        matches: dict with keys = Match and vals = Dice
+    """
+
     def __init__(self):
         self.matches = None
 
@@ -45,18 +56,43 @@ class DiceParser:
         return string
 
     def parse(self, string: str) -> None:
+        """Build self.matches dict from string.
+
+        Arguments:
+            string: user-provided string contatining standard notation.
+
+        Raises:
+            ParserError: If not matches found in string.
+        """
         self.matches = {d: Dice.from_match(d) for d in DICE_PATTERN.finditer(string)}
         if not self.matches:
             raise ParserError(string)
 
-    def eval(self, func: str, string: str) -> str:
+    def eval(self, func: str, string: str) -> int:
+        """Evaluate maths results from string containing dice notation.
+
+        Parses dice from string, substitutes parsed values with results from
+        provided Dice method, and evaluates resultant maths expression without
+        using the builtin eval function.
+
+        Arguments:
+            func: Dice method to be applied to parse dice pool.
+            string: user-provided string contatining standard notation.
+
+        Returns:
+            int: Result of substituting dice notation and evaluating maths.
+        """
         self.parse(string)
         string = self._sub_dice(func, string)
         string = self._sub_ops(string)
-        return string
+        return int(string)
 
 
 def getop(opstring: str) -> Callable:
+    """Maps operator string to maths function
+
+    Division is rounded down to the nearest integer
+    """
     ops = {
         "+": lambda x, y: x + y,
         "-": lambda x, y: x - y,
