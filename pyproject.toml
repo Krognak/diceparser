@@ -2,7 +2,7 @@
 name = "diceparser"
 version = "0.1.0"
 description = "Yet another dice-parsing library!"
-authors = ["Gage Talbot <gagetalbot@pm.me"]
+authors = ["Gage Talbot <gagetalbot@pm.me>"]
 readme = "README.md"
 packages = [{include = "diceparser", from = "src"}]
 
