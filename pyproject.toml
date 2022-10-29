@@ -10,6 +10,18 @@ packages = [{include = "diceparser", from = "src"}]
 python = "^3.10"
 
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^0.982"
+pylint = "^2.15.5"
+flake8 = "^5.0.4"
+black = "^22.10.0"
+isort = "^5.10.1"
+pytest = "^7.2.0"
+
+
+[tool.isort]
+profile = "black"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
