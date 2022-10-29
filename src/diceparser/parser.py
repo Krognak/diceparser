@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
-from random import randint
-from typing import Callable, Match, Optional
+from typing import Callable
+
+from .dice import Dice
 
 DICE_PATTERN = re.compile(r"(\d*)d(\d+)")
 MATHS_PATTERN = re.compile(r"(?P<lhs>\w+)\s*(?P<op>[-+\/*])\s*(?P<rhs>\w+)")
@@ -15,22 +15,6 @@ class ParserError(Exception):
 
     def __str__(self):
         return f"Unable to parse '{self.string}'"
-
-
-@dataclass()
-class Dice:
-    num: int
-    sides: int
-
-    @classmethod
-    def from_match(cls, match: Match) -> Dice:
-        return cls(*map(count_dice_attr, match.groups()))
-
-    def roll(self) -> int:
-        return sum((randint(1, self.sides) for _ in range(self.num)))
-
-    def average(self) -> int:
-        return self.num * (self.sides + 1) // 2
 
 
 class DiceParser:
@@ -72,12 +56,6 @@ class DiceParser:
         return string
 
 
-def count_dice_attr(attr: Optional[str] = None) -> int:
-    if attr:
-        return int(attr)
-    return 1
-
-
 def getop(opstring: str) -> Callable:
     ops = {
         "+": lambda x, y: x + y,
@@ -86,8 +64,3 @@ def getop(opstring: str) -> Callable:
         "/": lambda x, y: x // y,
     }
     return ops[opstring]
-
-
-if __name__ == "__main__":
-    parser = DiceParser()
-    print(parser.eval("roll", "1d20 - 5"))
