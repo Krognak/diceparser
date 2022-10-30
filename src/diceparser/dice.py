@@ -29,7 +29,8 @@ class Dice:
         return cls(*map(count_dice_attr, match.groups()))
 
     def roll(self) -> int:
-        """Randomly determines a result between 1 and self.sides for each die in the pool.
+        """Randomly determines a result between 1 and self.sides for each die in the
+        pool.
 
         Returns:
             int: sum of random values

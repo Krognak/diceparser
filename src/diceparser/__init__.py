@@ -9,5 +9,7 @@ Usage:
 9
 """
 
-from .parser import DiceParser
 from .dice import Dice
+from .parser import DiceParser
+
+__version__ = "0.1.2"

@@ -1,29 +1,53 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
 name = "diceparser"
-version = "0.1.2"
-description = "Yet another dice-parsing library!"
-authors = ["Gage Talbot <gagetalbot@pm.me>"]
+description = "Yet another diceparser!"
 readme = "README.md"
-packages = [{include = "diceparser", from = "src"}]
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+  { name = "Gage Talbot", email = "gagetalbot@pm.me" },
+]
+dependencies = []
+dynamic = ["version"]
 
-[tool.poetry.dependencies]
-python = "^3.10"
+[tool.hatch.version]
+path = "src/diceparser/__init__.py"
 
+[tool.hatch.envs.testing]
+dependencies = [
+  "pytest",
+]
+[tool.hatch.envs.testing.scripts]
+all = "pytest tests/"
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.2.0"
+[[tool.hatch.envs.testing.matrix]]
+python = ["38", "39", "310", "311"]
 
+[tool.hatch.envs.linting]
+detached = true
+dependencies = [
+  "flake8",
+  "pylint",
+  "mypy",
+  "black",
+  "isort",
+]
 
-[tool.poetry.group.lint.dependencies]
-mypy = "^0.982"
-pylint = "^2.15.5"
-flake8 = "^5.0.4"
-black = "^22.10.0"
-isort = "^5.10.1"
+[tool.hatch.envs.linting.scripts]
+chk = [
+  "- pylint src/",
+  "- flake8 --max-complexity 10 --max-line-length 88 --extend-ignore E203 --exclude src/diceparser/__init__.py src/",
+  "- mypy src/"
+]
+fmt = [
+  "black src/",
+  "isort src/",
+  "chk",
+]
 
 [tool.isort]
 profile = "black"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
