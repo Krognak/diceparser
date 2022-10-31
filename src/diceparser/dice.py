@@ -46,11 +46,12 @@ class Dice:
             int: The average result of rolling the dice pool."""
         return self.num * (self.sides + 1) // 2
 
-    def min(self) -> int:
-        return sum((1 for _ in range(self.num)))
+    def min(self) -> int:  # pylint: disable=C0116
+        return self.num
 
-    def max(self) -> int:
-        return sum((self.sides for _ in range(self.num)))
+    def max(self) -> int:  # pylint: disable=C0116
+        return self.num * self.sides
+
 
 # Allows for the 'lazy' notation d[sides]
 def count_dice_attr(attr: Optional[str] = None) -> int:
