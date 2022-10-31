@@ -12,4 +12,4 @@ Usage:
 from .dice import Dice
 from .parser import DiceParser
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
