@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "diceparser"
 description = "Yet another diceparser!"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.7"
 license = "MIT"
 authors = [
   { name = "Gage Talbot", email = "gagetalbot@pm.me" },
@@ -25,7 +25,7 @@ dependencies = [
 all = "pytest tests/"
 
 [[tool.hatch.envs.testing.matrix]]
-python = ["38", "39", "310", "311"]
+python = ["37", "38", "39", "310", "311"]
 
 [tool.hatch.envs.linting]
 detached = true
